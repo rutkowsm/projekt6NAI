@@ -1,3 +1,4 @@
 
-https://github.com/rutkowsm/projekt6NAI/assets/37616390/5741e7a4-9105-4bcf-b4ca-2cf4b28f6e73
+
+https://github.com/rutkowsm/projekt6NAI/assets/37616390/74cd44be-ad90-4313-b2c7-1db994908cb9
 
