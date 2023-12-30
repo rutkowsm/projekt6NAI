@@ -7,6 +7,10 @@ CIRCLE_THICKNESS = 2
 VIEWFINDER_LENGTH = 20
 VIEWFINDER_THICKNESS = 2
 
+#Strojenie Face Cascade
+SCALE_FACTOR = 1.5
+MIN_NEIGHBOURS = 6
+
 # Inicjalizacja przechwytywania wideo z pierwszego urządzenia kamery
 cap = cv2.VideoCapture(0)
 
@@ -44,7 +48,7 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Wykrywanie twarzy
-    faces = face_cascade.detectMultiScale(gray, 1.5, 3)
+    faces = face_cascade.detectMultiScale(gray, SCALE_FACTOR, MIN_NEIGHBOURS)
 
     if is_face_moved(faces, prev_faces):
         color = (0, 0, 255)  # Czerwony dla ruchomej twarzy
