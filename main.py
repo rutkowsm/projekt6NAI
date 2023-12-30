@@ -1,10 +1,33 @@
 import cv2
+import copy
 
 # Inicjalizacja przechwytywania wideo z pierwszego urządzenia kamery
 cap = cv2.VideoCapture(0)
 
 # Załaduj klasyfikator Haar do wykrywania twarzy
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+prev_faces = []
+
+
+def is_face_moved(current_faces, prev_faces, threshold=10):
+    if len(prev_faces) != len(current_faces):
+        return True  # Liczba twarzy się zmieniła
+
+    for prev_face in prev_faces:
+        px, py, pw, ph = prev_face
+        moved = True  # Zakładamy, że twarz się poruszyła
+        for curr_face in current_faces:
+            x, y, w, h = curr_face
+            if abs(x - px) < threshold and abs(y - py) < threshold:
+                moved = False  # Znaleziono twarz w podobnym położeniu
+                break
+        if moved:
+            return True  # Jeśli któraś twarz się poruszyła, zwróć True
+
+    return False  # Żadna twarz się nie poruszyła
+
+
 
 while True:
     ret, frame = cap.read()
@@ -17,16 +40,22 @@ while True:
     # Wykrywanie twarzy
     faces = face_cascade.detectMultiScale(gray, 1.1, 4)
 
-    # Rysowanie prostokątów wokół twarzy
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    if is_face_moved(faces, prev_faces):
+        color = (0, 0, 255)  # Czerwony dla ruchomej twarzy
+    else:
+        color = (0, 255, 0)  # Zielony dla nieruchomej twarzy
 
-    # Wyświetlanie wyniku
-    cv2.imshow('Rozpoznawanie twarzy', frame)
+    for (x, y, w, h) in faces:
+        if color == (0, 255, 0):  # Narysuj zielony okrąg dla nieruchomej twarzy
+            center = (x + w // 2, y + h // 2)
+            cv2.circle(frame, center, w // 4, color, 2)
+
+    cv2.imshow('Rozpoznawanie twarzy i ruchu', frame)
+
+    prev_faces = copy.deepcopy(faces)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
 cv2.destroyAllWindows()
-
