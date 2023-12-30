@@ -1,6 +1,12 @@
 import cv2
 import copy
 
+# Wymiary znaczników
+CIRCLE_DIAMETER_DIVIDER = 2
+CIRCLE_THICKNESS = 2
+VIEWFINDER_LENGTH = 20
+VIEWFINDER_THICKNESS = 2
+
 # Inicjalizacja przechwytywania wideo z pierwszego urządzenia kamery
 cap = cv2.VideoCapture(0)
 
@@ -38,7 +44,7 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Wykrywanie twarzy
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    faces = face_cascade.detectMultiScale(gray, 1.5, 3)
 
     if is_face_moved(faces, prev_faces):
         color = (0, 0, 255)  # Czerwony dla ruchomej twarzy
@@ -48,9 +54,9 @@ while True:
     for (x, y, w, h) in faces:
         center = (x + w // 2, y + h // 2)
         center_x, center_y = x + w // 2, y + h // 2
-        cv2.circle(frame, center, w // 4, color, 2)
-        cv2.line(frame, (center_x, center_y - 10), (center_x, center_y + 10), color, 2)  # Pionowa linia
-        cv2.line(frame, (center_x - 10, center_y), (center_x + 10, center_y), color, 2)  # Pozioma linia
+        cv2.circle(frame, center, w // CIRCLE_DIAMETER_DIVIDER, color, CIRCLE_THICKNESS) # Okrąg
+        cv2.line(frame, (center_x, center_y - VIEWFINDER_LENGTH), (center_x, center_y + VIEWFINDER_LENGTH), color, VIEWFINDER_THICKNESS)  # Pionowa linia
+        cv2.line(frame, (center_x - VIEWFINDER_LENGTH, center_y), (center_x + VIEWFINDER_LENGTH, center_y), color, VIEWFINDER_THICKNESS)  # Pozioma linia
 
     cv2.imshow('Rozpoznawanie twarzy i ruchu', frame)
 
