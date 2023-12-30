@@ -46,9 +46,11 @@ while True:
         color = (0, 255, 0)  # Zielony dla nieruchomej twarzy
 
     for (x, y, w, h) in faces:
-        if color == (0, 255, 0):  # Narysuj zielony okrąg dla nieruchomej twarzy
-            center = (x + w // 2, y + h // 2)
-            cv2.circle(frame, center, w // 4, color, 2)
+        center = (x + w // 2, y + h // 2)
+        center_x, center_y = x + w // 2, y + h // 2
+        cv2.circle(frame, center, w // 4, color, 2)
+        cv2.line(frame, (center_x, center_y - 10), (center_x, center_y + 10), color, 2)  # Pionowa linia
+        cv2.line(frame, (center_x - 10, center_y), (center_x + 10, center_y), color, 2)  # Pozioma linia
 
     cv2.imshow('Rozpoznawanie twarzy i ruchu', frame)
 
