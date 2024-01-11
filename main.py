@@ -8,6 +8,14 @@ Stakniewicz, Kacper     s22619
 Przygotowanie środowiska:
 
 pip install opencv-python
+
+Instrukcja:
+Program przechwytuje obraz z kamery i, korzystając z dostępnego w bibliotece OpenCV klasyfikatora HaarCascade,
+wykrywa twarze widoczne na ekranie.
+Ponadto program wykrywa pozycje twarzy i porównując do poprzedzających współrzędnych określa
+czy twarz zmieniła położenie (wykrywanie ruchu).
+Każda twarz oznaczona jest celownikiem - zielonym, jeśli ruch nie został wykryty lub czerwonym, jeśli twarz
+poruszyła się
 """
 
 import cv2
@@ -19,9 +27,22 @@ CIRCLE_THICKNESS = 2
 VIEWFINDER_LENGTH = 20
 VIEWFINDER_THICKNESS = 2
 
-"""Strojenie Face Cascade"""
+""" 
+Strojenie Face Cascade
+
+SCALE FACTOR - parametr określający, jak bardzo obraz jest redukowany na każdym etapie piramidy obrazu. 
+Wartość większa niż 1 oznacza, że algorytm używa mniejszej skali do wykrywania obiektów
+
+MIN_NEIGHBOURS - parametr określający, ile sąsiadów musi mieć każdy prostokąt kandydujący, aby go zachować. 
+Jest to sposób na filtrację fałszywych pozytywów. 
+Jeśli parametr jest ustawiony na wyższą wartość, algorytm będzie wymagał większej liczby potwierdzeń, 
+co może pomóc w eliminacji fałszywych wykryć, ale może także pominąć niektóre prawidłowe wykrycia.
+"""
 SCALE_FACTOR = 1.5
 MIN_NEIGHBOURS = 6
+
+""" Strojenie wykrywania ruchu"""
+PIXEL_THRESHOLD = 10
 
 """ Klasyfikatory haarcascade_frontalface """
 HAARCASCADE_DEFAULT_CLASIFIER = 'haarcascade_frontalface_default.xml'
@@ -37,7 +58,7 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + HAARCASCADE_DEFAULT
 prev_faces = []
 
 
-def is_face_moved(current_faces, prev_faces, threshold=10):
+def is_face_moved(current_faces, prev_faces, PIXEL_THRESHOLD):
     """
     :param current_faces:
     Lista krotek (x, y, w, h) reprezentujących wykryte twarze w bieżącej klatce.
@@ -53,7 +74,7 @@ def is_face_moved(current_faces, prev_faces, threshold=10):
     różnicę w pikselach dla współrzędnych twarzy między klatkami, aby uznać, że twarz nie poruszyła się.
     Jeśli różnica jest większa niż ten próg, uznaje się, że twarz się poruszyła.
 
-    :return: True / False - True jeśli wykryto ruch, Flase jeśli nie wykryto
+    :return: True / False - True jeśli wykryto ruch, False jeśli nie wykryto
     """
     if len(prev_faces) != len(current_faces):
         return True  # Liczba twarzy się zmieniła
@@ -63,7 +84,7 @@ def is_face_moved(current_faces, prev_faces, threshold=10):
         moved = True  # Zakładamy, że twarz się poruszyła
         for curr_face in current_faces:
             x, y, w, h = curr_face
-            if abs(x - px) < threshold and abs(y - py) < threshold:
+            if abs(x - px) < PIXEL_THRESHOLD and abs(y - py) < PIXEL_THRESHOLD:
                 moved = False  # Znaleziono twarz w podobnym położeniu
                 break
         if moved:
